@@ -18,7 +18,7 @@ namespace TODOLIST.ViewModels
         [DataType(DataType.Date)]
         public DateTime DueDate { get; set; }
 
-        [Display(Name = "Is Active")]
+        [Display(Name = "Activity Status")]
         public bool IsActive { get; set; }
         public string Status => IsActive ? "Active" : "Completed";
     }

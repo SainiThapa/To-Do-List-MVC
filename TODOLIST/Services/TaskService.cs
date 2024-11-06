@@ -33,6 +33,7 @@ namespace TODOLIST.Services
                 .ToListAsync();
         }
 
+
                public async Task<TaskItem> GetTaskByIdAsync(int id, string userId)
         {
             return await _context.TaskItems
@@ -75,6 +76,7 @@ namespace TODOLIST.Services
             var task = await GetTaskByIdAsync(id, userId);
             if (task == null)
             {
+                Console.WriteLine("NULL TASK");
                 return false; // Task not found or doesn't belong to the user
             }
 

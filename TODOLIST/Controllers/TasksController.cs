@@ -19,7 +19,7 @@ namespace TODOLIST.Controllers
             _userManager = userManager;
         }
 
-        // GET: /Tasks/
+// GET: /Tasks/
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -38,21 +38,29 @@ namespace TODOLIST.Controllers
         
         }
 
-        // POST: /Tasks/Create
+// Create Tasks
+        public IActionResult Create() => View();
         [HttpPost]
-        public async Task<IActionResult> Create(TaskItem taskitem)
+        public async Task<IActionResult> Create(TaskViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
-                taskitem.UserId = user.Id;  // Ensure the task is associated with the user
-                await _taskService.CreateTaskAsync(taskitem, user.Id);
+                 var taskItem = new TaskItem
+                {
+                    Title = model.Title,
+                    Description = model.Description,
+                    DueDate = model.DueDate,
+                    IsActive = model.IsActive,
+                    UserId = user.Id
+                };
+                await _taskService.CreateTaskAsync(taskItem, user.Id);
                 return RedirectToAction("Index");
             }
-            return View(taskitem);
+            return View(model);
         }
 
-        // GET: /Tasks/Edit/{id}
+// Edit Tasks   
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -62,16 +70,32 @@ namespace TODOLIST.Controllers
             {
                 return NotFound();
             }
-            return View(task);
+            var taskviewmodel = new TaskViewModel
+            {
+                Id=task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                DueDate = task.DueDate,
+                IsActive = task.IsActive
+            };
+            return View(taskviewmodel);
         }
 
-        // POST: /Tasks/Edit/{id}
         [HttpPost]
-        public async Task<IActionResult> Edit(TaskItem taskItem)
+        public async Task<IActionResult> Edit(TaskViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
+                var taskItem = new TaskItem
+                {
+                    Id = model.Id,
+                    Title = model.Title,
+                    Description = model.Description,
+                    DueDate = model.DueDate,
+                    IsActive = model.IsActive,
+                    UserId = user.Id
+                };
                 var updatedTask = await _taskService.UpdateTaskAsync(taskItem, user.Id);
                 if (updatedTask == null)
                 {
@@ -80,10 +104,9 @@ namespace TODOLIST.Controllers
                 return RedirectToAction("Index");
             }
 
-            return View(taskItem);
+            return View(model);
         }
-
-        // POST: /Tasks/Delete/{id}
+// Delete tasks
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -91,12 +114,14 @@ namespace TODOLIST.Controllers
             var success = await _taskService.DeleteTaskAsync(id, user.Id);
             if (!success)
             {
+                Console.WriteLine("Unsuccessful deletion");
+
                 return NotFound();
             }
             return RedirectToAction("Index");
         }
 
-        // GET: /Tasks/Details/{id}
+// Get Details
         public async Task<IActionResult> Details(int id)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -105,7 +130,15 @@ namespace TODOLIST.Controllers
             {
                 return NotFound();
             }
-            return View(task);
+             var taskViewModel = new TaskViewModel
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                DueDate = task.DueDate,
+                IsActive = task.IsActive
+            };      
+            return View(taskViewModel);
         }
     }
 }
