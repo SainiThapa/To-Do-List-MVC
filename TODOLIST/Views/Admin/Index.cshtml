@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2>Admin Dashboard</h2>
+
+<div class="admin-actions">
+    <p>Welcome to the Admin Dashboard! Use the options below to manage users and tasks.</p>
+
+    <ul>
+        <li>
+            <a asp-controller="Admin" asp-action="UserList" class="btn btn-primary">View Users</a>
+        </li>
+        <li>
+            <a asp-controller="Account" asp-action="ResetPassword" class="btn btn-primary">Reset user's password</a>
+        </li>
+        <li>
+            <a asp-controller="Account" asp-action="Logout" class="btn btn-secondary">Log Out</a>
+        </li>
+    </ul>
+</div>
+
+<style>
+    .admin-actions {
+        margin-top: 20px;
+    }
+
+    .admin-actions ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .admin-actions li {
+        margin: 10px 0;
+    }
+
+    .btn {
+        text-decoration: none;
+        padding: 10px 20px;
+        color: #fff;
+        border-radius: 5px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+</style>

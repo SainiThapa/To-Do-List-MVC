@@ -18,6 +18,10 @@ namespace TODOLIST.Controllers
             _taskService = taskService;
         }
 
+        public IActionResult Index()
+        {
+            return View();
+        }
         // List of users displays
         public async Task<IActionResult> UserList()
         {
