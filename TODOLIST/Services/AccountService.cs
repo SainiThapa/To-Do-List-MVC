@@ -9,11 +9,21 @@ namespace TODOLIST.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
+
+        }
+        public async Task EnsureRoleExistsAsync(string roleName)
+        {
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(roleName));
+            }
         }
 
         // Register a new user
@@ -22,16 +32,21 @@ namespace TODOLIST.Services
             var user = new ApplicationUser
             {
                 UserName = model.Email,
-                Email = model.Email
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
                 // Sign in the user after successful registration (optional)
+            await EnsureRoleExistsAsync("User");
+            await _userManager.AddToRoleAsync(user,"User");
+
                 await _signInManager.SignInAsync(user, isPersistent: false);
             }
-
+    
             return result;
         }
 
@@ -67,15 +82,15 @@ namespace TODOLIST.Services
             return result;
         }
 
-        // Send a password reset token (e.g., to be used in a link sent via email)
+        // Send a password reset token to be used in a link sent via email
         public async Task<string> GeneratePasswordResetTokenAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return null; // Handle user not found case
+                return null;
             }
-
+                
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             return token;
         }

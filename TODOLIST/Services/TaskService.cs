@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TODOLIST.Data;
-using TODOLIST.Models; 
+using TODOLIST.Models;
+using TODOLIST.ViewModels;
 
 
 namespace TODOLIST.Services
@@ -53,6 +54,20 @@ namespace TODOLIST.Services
 
             await _context.SaveChangesAsync();
             return existingTask;
+        }
+        public async Task<TaskViewModel?> GetTaskByIdAsync(int id)
+        {
+            return await _context.TaskItems
+                .Where(t => t.Id == id)
+                .Select(t => new TaskViewModel
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    DueDate = t.DueDate,
+                    IsActive = t.IsActive
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> DeleteTaskAsync(int id, string userId)

@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/TODOLIST.csproj": {}
+    "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj": {}
   },
   "projects": {
-    "/home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/TODOLIST.csproj": {
+    "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/TODOLIST.csproj",
+        "projectUniqueName": "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj",
         "projectName": "TODOLIST",
-        "projectPath": "/home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/TODOLIST.csproj",
-        "packagesPath": "/home/prisanmagar/.nuget/packages/",
-        "outputPath": "/home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/obj/",
+        "projectPath": "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj",
+        "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/prisanmagar/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -43,11 +50,15 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.AspNetCore.Authentication": {
+            "MailKit": {
               "target": "Package",
-              "version": "[2.2.0, )"
+              "version": "[4.8.0, )"
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.10, )"
             },
@@ -64,6 +75,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.10, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[8.0.6, )"
             }
           },
           "imports": [
@@ -85,7 +100,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.403/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

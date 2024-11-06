@@ -16,7 +16,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Register the TaskService as a scoped service
+builder.Services.AddScoped<AccountService>();
+
 builder.Services.AddScoped<TaskService>();
+
 
 // Add MVC services
 builder.Services.AddControllersWithViews();
@@ -47,17 +50,15 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await SeedRolesAsync(services); 
+    await SeedRolesAsync(services);
 }
 
-app.Run(); // Start the application
-
-// Method to seed roles into the database
+app.Run();
 static async Task SeedRolesAsync(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    string[] roleNames = { "Admin", "User" }; // Define roles to seed
+    string[] roleNames = {"Admin", "User" }; // Define roles to seed
     IdentityResult roleResult;
 
     foreach (var roleName in roleNames)
