@@ -1,0 +1,35 @@
+@model IEnumerable<TODOLIST.Models.TaskItem>
+@{
+    var userId = ViewBag.UserId;
+}
+
+<h2>User Tasks</h2>
+
+<form asp-action="DeleteSelectedTasks" method="post">
+    <input type="hidden" name="userId" value="@userId" />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Task Title</th>
+                <th>Due Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in Model)
+            {
+                <tr>
+                    <td><input type="checkbox" name="taskIds" value="@task.Id" /></td>
+                    <td>@task.Title</td>
+                    <td>@task.DueDate.ToShortDateString()</td>
+                    <td>@(task.IsActive ? "Active" : "Completed")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <input type="hidden" name="userId" value="@ViewBag.UserId" />
+    <button type="submit" class="btn btn-danger">Delete Selected Tasks</button>
+</form>
+
+<a href="@Url.Action("UserList", "Admin")" class="btn btn-secondary">Back to User List</a>

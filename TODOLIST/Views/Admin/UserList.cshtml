@@ -1,0 +1,25 @@
+@model IEnumerable<TODOLIST.Models.ApplicationUser>
+
+<h2>User List</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FirstName @user.LastName</td>
+                <td>@user.Email</td>
+                <td>
+                    <a href="@Url.Action("UserTasks", "Admin", new { userId = user.Id })" class="btn btn-primary">View Tasks</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

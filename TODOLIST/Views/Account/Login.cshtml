@@ -21,9 +21,12 @@
         <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
         <label asp-for="RememberMe" class="form-check-label">Remember Me</label>
     </div>
+
+ <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
     <button type="submit" class="btn btn-primary">Login</button>
 </form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

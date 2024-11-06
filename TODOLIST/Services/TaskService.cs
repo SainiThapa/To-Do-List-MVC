@@ -28,6 +28,10 @@ namespace TODOLIST.Services
 
         public async Task<List<TaskItem>> GetUserTasksAsync(string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return null; // Or handle this scenario differently
+            }
             return await _context.TaskItems
                 .Where(t => t.UserId == userId)
                 .ToListAsync();
@@ -76,7 +80,6 @@ namespace TODOLIST.Services
             var task = await GetTaskByIdAsync(id, userId);
             if (task == null)
             {
-                Console.WriteLine("NULL TASK");
                 return false; // Task not found or doesn't belong to the user
             }
 

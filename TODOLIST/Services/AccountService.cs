@@ -58,7 +58,6 @@ namespace TODOLIST.Services
                 model.Password,
                 model.RememberMe,
                 lockoutOnFailure: false);
-
             return result;
         }
 

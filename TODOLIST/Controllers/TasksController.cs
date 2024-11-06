@@ -107,14 +107,12 @@ namespace TODOLIST.Controllers
             return View(model);
         }
 // Delete tasks
-        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _userManager.GetUserAsync(User);
             var success = await _taskService.DeleteTaskAsync(id, user.Id);
             if (!success)
             {
-                Console.WriteLine("Unsuccessful deletion");
 
                 return NotFound();
             }

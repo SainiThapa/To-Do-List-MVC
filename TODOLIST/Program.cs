@@ -17,7 +17,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 // Register the TaskService as a scoped service
 builder.Services.AddScoped<AccountService>();
-
+builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<TaskService>();
 
 
@@ -54,21 +54,67 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 static async Task SeedRolesAsync(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
-    string[] roleNames = {"Admin", "User" }; // Define roles to seed
+    // Define roles
+    string[] roleNames = { "Admin", "User" };
     IdentityResult roleResult;
 
+    // Ensure each role exists, creating if necessary
     foreach (var roleName in roleNames)
     {
-        // Check if the role already exists
         var roleExist = await roleManager.RoleExistsAsync(roleName);
         if (!roleExist)
         {
-            // Create the role if it doesn't exist
             roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
         }
     }
+
+    
+        // Define hardcoded admin credentials
+        string adminUsername = "Admin";
+        string adminEmail = "admin@abc.com";
+        string adminPassword = "Admin@123"; // Use a strong password in production
+
+        // Check if an admin user exists
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            // Create the admin user
+            adminUser = new ApplicationUser
+            {
+                UserName = adminUsername,
+                Email = adminEmail,
+                FirstName = "Admin",
+                LastName = "User",
+                EmailConfirmed = true
+            };
+
+            var createAdminResult = await userManager.CreateAsync(adminUser, adminPassword);
+            
+            // Assign Admin role if creation succeeded
+            if (createAdminResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+                Console.WriteLine("Admin user created and assigned to Admin role.");
+            }
+            else
+            {
+                Console.WriteLine("Error creating admin user:");
+                foreach (var error in createAdminResult.Errors)
+                {
+                    Console.WriteLine($"- {error.Description}");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("Admin user already exists.");
+        }
 }
+
