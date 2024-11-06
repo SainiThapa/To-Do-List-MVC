@@ -1,25 +1,67 @@
 @model IEnumerable<TODOLIST.Models.ApplicationUser>
 
-<h2>User List</h2>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">User List</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Full Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
+    <table class="table table-hover table-bordered">
+        <thead class="thead-dark">
             <tr>
-                <td>@user.FirstName @user.LastName</td>
-                <td>@user.Email</td>
-                <td>
-                    <a href="@Url.Action("UserTasks", "Admin", new { userId = user.Id })" class="btn btn-primary">View Tasks</a>
-                </td>
+                <th scope="col">Full Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.FirstName @user.LastName</td>
+                    <td>@user.Email</td>
+                    <td>
+                        <a href="@Url.Action("UserTasks", "Admin", new { userId = user.Id })" class="btn btn-primary btn-sm">
+                            <i class="bi bi-list-check"></i> View Tasks
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Add some CSS for further styling -->
+<style>
+    .container {
+        max-width: 800px;
+    }
+
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .table thead {
+        background-color: #343a40;
+        color: #fff;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        box-shadow: 0px 4px 8px rgba(0, 123, 255, 0.4);
+    }
+
+    .text-center {
+        color: #343a40;
+        font-weight: 600;
+    }
+</style>

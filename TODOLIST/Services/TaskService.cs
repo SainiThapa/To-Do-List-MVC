@@ -30,7 +30,7 @@ namespace TODOLIST.Services
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return null; // Or handle this scenario differently
+                return new List<TaskItem>(); // Or handle this scenario differently
             }
             return await _context.TaskItems
                 .Where(t => t.UserId == userId)
@@ -38,7 +38,7 @@ namespace TODOLIST.Services
         }
 
 
-               public async Task<TaskItem> GetTaskByIdAsync(int id, string userId)
+        public async Task<TaskItem> GetTaskByIdAsync(int id, string userId)
         {
             return await _context.TaskItems
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);

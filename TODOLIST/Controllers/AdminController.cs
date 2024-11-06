@@ -9,14 +9,13 @@ namespace TODOLIST.Controllers
     public class AdminController : Controller
     {
         private readonly AdminService _adminService;
-        private readonly ILogger<AdminController> _logger;
-
         private readonly TaskService _taskService;
 
 
-        public AdminController(AdminService adminService)
+        public AdminController(AdminService adminService, TaskService taskService)
         {
             _adminService = adminService;
+            _taskService = taskService;
         }
 
         // List of users displays
@@ -26,25 +25,23 @@ namespace TODOLIST.Controllers
             return View(users);
         }
 
+// Show User's tasks or activities
         public async Task<IActionResult> UserTasks(string userId)
         {
             if (string.IsNullOrEmpty(userId))
             {
-                _logger.LogError("User ID is null or empty.");
-
-                return NotFound(); // Handle the case where userId is null
+                return NotFound("User ID is missing or invalid.");
             }
             var tasks = await _taskService.GetUserTasksAsync(userId);
-            if (tasks == null)
+            if (tasks == null || !tasks.Any())
             {
-                _logger.LogError($"No tasks found for user with ID {userId}");
-                return NotFound(); // Handle the case where tasks are not found
+                return NotFound("No tasks found for this user.");
             }
-
             ViewBag.UserId = userId;
             return View(tasks);
         }
-        // Delete selected user tasks
+
+// Delete selected user tasks
         [HttpPost]
         public async Task<IActionResult> DeleteSelectedTasks(List<int> taskIds,string userId)
         {

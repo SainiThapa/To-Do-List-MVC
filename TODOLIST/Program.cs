@@ -17,8 +17,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 // Register the TaskService as a scoped service
 builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<AdminService>();
 
 
 // Add MVC services
