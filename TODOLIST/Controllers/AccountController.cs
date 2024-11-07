@@ -3,19 +3,23 @@ using System.Threading.Tasks;
 using TODOLIST.ViewModels;
 using TODOLIST.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using TODOLIST.Models;
 
 namespace TODOLIST.Controllers
 {
     public class AccountController : Controller
     {
         private readonly ILogger<AccountController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly AccountService _accountService;
 
-        public AccountController(AccountService accountService, ILogger<AccountController> logger)
+        public AccountController(AccountService accountService, ILogger<AccountController> logger, UserManager<ApplicationUser> userManager)
         {
             _accountService = accountService;
             _logger = logger;
+            _userManager=userManager;
 
         }
 
@@ -77,69 +81,51 @@ namespace TODOLIST.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        [Authorize]
-        public IActionResult ResetPassword(string token, string email)
+        [HttpGet]
+        [Authorize] // Make sure user is logged in
+        public async Task<IActionResult> ResetPassword()
         {
-            if (token == null || email == null)
+
+            var user = await _userManager.GetUserAsync(User);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            
+            if (token == null || user == null)
             {
-                return RedirectToAction("ForgotPassword");
+                throw new ApplicationException("A token must be supplied for password reset.");
             }
             
-            var model = new PasswordResetViewModel
-            {
-                Token = token,
-                Email = email
-            };
-
+            var model = new PasswordResetViewModel { Email=user.Email, Token = token };
             return View(model);
         }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(PasswordResetViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(model.Token))
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid token.");
-                    return View(model);
+                    Console.WriteLine(error.ErrorMessage);
                 }
-
-                var result = await _accountService.ResetPasswordAsync(model);
-                if (result.Succeeded)
-                {
-                    ViewData["Message"] = "Password reset successful!";
-                    return RedirectToAction("Index","Home");
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                return View(model);
+            }
+            var result = await _accountService.ResetPasswordAsync(model);
+            if (result.Succeeded)
+            {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
             }
             return View(model);
         }
 
-        [Authorize]
-        public IActionResult ForgotPassword() => View();
-
-
-        [HttpPost]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        public IActionResult ResetPasswordConfirmation()
         {
-            if (ModelState.IsValid)
-            {
-                var token = await _accountService.GeneratePasswordResetTokenAsync(model.Email);
-                if (string.IsNullOrEmpty(token))
-                {
-                    // If the token is null, the email might not exist in the database
-                    ModelState.AddModelError(string.Empty, "Invalid email address.");
-                    return View(model);
-                }
-
-                // Normally, you'd send this token to the user's email.
-                // For simplicity, we're just displaying it here (in a real app, an email should be sent).
-                return RedirectToAction("ResetPassword", new { token = token, email = model.Email });
-            }
-            return View(model);
+            return View();
         }
     }
 }

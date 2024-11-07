@@ -73,10 +73,9 @@ namespace TODOLIST.Services
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                // User not found, handle accordingly (e.g., return a result indicating failure)
                 return IdentityResult.Failed(new IdentityError { Description = "User not found" });
-            }
 
+            }
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
             return result;
         }
