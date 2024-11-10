@@ -20,6 +20,7 @@ namespace TODOLIST.ViewModels
 
         [Display(Name = "Activity Status")]
         public bool IsActive { get; set; }
-        public string Status => IsActive ? "Active" : "Completed";
+        public string Status => IsActive ? "Active" : "Completed";  
+
     }
 }

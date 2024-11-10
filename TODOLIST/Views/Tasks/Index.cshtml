@@ -4,7 +4,9 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<div class="container mt-5">
+    <h2 class="text mb-4">Task List</h2>
+    <h4>Total Tasks: @ViewData["TotalTasks"]</h4>  <!-- Display the task count -->
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -40,7 +42,7 @@
                 @Html.DisplayFor(modelItem => item.DueDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
+                @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -51,3 +53,4 @@
 }
     </tbody>
 </table>
+</div>

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using TODOLIST.Models; // Replace with the namespace containing your ApplicationUser model
@@ -27,7 +28,7 @@ namespace TODOLIST.Services
         }
 
         // Register a new user
-        public async Task<IdentityResult> RegisterUserAsync(RegisterViewModel model)
+        public async Task<IdentityResult> RegisterUserAsync(RegisterViewModel model, ClaimsPrincipal currentUser)
         {
             var user = new ApplicationUser
             {
@@ -43,8 +44,10 @@ namespace TODOLIST.Services
                 // Sign in the user after successful registration (optional)
             await EnsureRoleExistsAsync("User");
             await _userManager.AddToRoleAsync(user,"User");
-
-                await _signInManager.SignInAsync(user, isPersistent: false);
+            if (!currentUser.Identity.IsAuthenticated)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                }
             }
     
             return result;
@@ -92,5 +95,23 @@ namespace TODOLIST.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             return token;
         }
+
+         public async Task<IdentityResult> DeleteUsersAsync(List<string> userIds)
+            {
+                IdentityResult result = IdentityResult.Success;
+                foreach (var userId in userIds)
+                {
+                    var user = await _userManager.FindByIdAsync(userId);
+                    if (user != null)
+                    {
+                        var deletionResult = await _userManager.DeleteAsync(user);
+                        if (!deletionResult.Succeeded)
+                        {
+                            return deletionResult; 
+                        }
+                    }
+                }
+                return result;
+            }
     }
 }

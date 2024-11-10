@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TODOLIST.Data;
 using TODOLIST.Models;
+using TODOLIST.ViewModels;
 
 namespace TODOLIST.Services
 {
@@ -40,6 +41,54 @@ namespace TODOLIST.Services
 
             _context.TaskItems.RemoveRange(tasksToDelete);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<UserTasksSummaryViewModel>> GetUserTasksSummaryAsync()
+        {
+            var usersWithTasks = new List<UserTasksSummaryViewModel>();
+
+            var users = _userManager.Users.Include(u => u.TaskItems).ToList();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Contains("User")) // Filter to include only users with "User" role
+                {
+                    usersWithTasks.Add(new UserTasksSummaryViewModel
+                    {
+                        UserId = user.Id,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserName = user.UserName,
+                        Tasks = user.TaskItems.Select(t => new TaskViewModel 
+                        {
+                            Id = t.Id,
+                            Title = t.Title,
+                            Description = t.Description,
+                            DueDate = t.DueDate,
+                            IsActive = t.IsActive
+                        }).ToList()
+                    });
+                }
+            }
+            return usersWithTasks;
+        }
+
+        public async Task<List<TaskWithOwnerViewModel>> GetAllTasksWithOwnerAsync()
+        {
+            return await _context.TaskItems
+                .Include(t => t.User)  // Include the user to access owner details
+                .Select(t => new TaskWithOwnerViewModel
+                {
+                    TaskId = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    DueDate = t.DueDate,
+                    IsActive = t.IsActive,
+                    Owner_FullName = t.User.FirstName+" "+t.User.LastName,  // Assuming UserName is used for identification
+                    OwnerEmail = t.User.Email
+                }).ToListAsync();
         }
     }
 }

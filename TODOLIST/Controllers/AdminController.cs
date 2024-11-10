@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TODOLIST.Services;
 using TODOLIST.ViewModels;
+using System.Linq;
+using System.Globalization;
+using CsvHelper;
+using System.IO;
 
 namespace TODOLIST.Controllers
 {
@@ -10,19 +14,20 @@ namespace TODOLIST.Controllers
     {
         private readonly AdminService _adminService;
         private readonly TaskService _taskService;
-
+        private readonly ILogger<AdminController> _logger;
         private readonly AccountService _accountService;
 
-        public AdminController(AdminService adminService, TaskService taskService,AccountService accountService)
+        public AdminController(AdminService adminService, TaskService taskService,AccountService accountService,ILogger<AdminController> logger)
         {
             _adminService = adminService;
             _taskService = taskService;
             _accountService = accountService;
+            _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index","Tasks");
         }
         // List of users displays
         public async Task<IActionResult> UserList()
@@ -122,5 +127,91 @@ namespace TODOLIST.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DownloadUserTasksSummary()
+        {
+            var usersTasks = await _adminService.GetUserTasksSummaryAsync();
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
+
+            csvWriter.WriteRecords(usersTasks);
+            writer.Flush();
+            stream.Position = 0;
+
+            return File(stream, "text/csv", "UserTasksSummary.csv");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadAllTasksWithOwners()
+        {
+            var tasksWithOwners = await _adminService.GetAllTasksWithOwnerAsync();
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
+
+            csvWriter.WriteRecords(tasksWithOwners);
+            writer.Flush();
+            stream.Position = 0;
+
+            return File(stream, "text/csv", "AllTasksWithOwners.csv");
+        }
+
+         // GET: Admin/AddUser
+        public IActionResult AddUser()
+        {
+            return View();
+        }
+
+        // POST: Admin/AddUser
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddUser(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            try
+            {
+                var result = await _accountService.RegisterUserAsync(model, User);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("Admin created a new user account with email: {Email}", model.Email);
+                    return RedirectToAction("UserList", "Admin");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while an admin was creating a new user.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+            }
+
+            return View(model);
+        }
+
+         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUsers(List<string> userIds)
+        {
+            if (userIds != null && userIds.Count > 0)
+            {
+                var result = await _accountService.DeleteUsersAsync(userIds);
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = "Users deleted successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Error deleting users: " + result.Errors.FirstOrDefault()?.Description;
+                }
+            }
+            return RedirectToAction("UserList");  // Redirect to the list of users after attempting deletion
+        }
     }
 }

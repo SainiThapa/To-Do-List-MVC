@@ -32,7 +32,7 @@ namespace TODOLIST.Controllers
             {
             try
             {
-                var result = await _accountService.RegisterUserAsync(model);
+                var result = await _accountService.RegisterUserAsync(model,User);
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index", "Home");

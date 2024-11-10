@@ -34,6 +34,7 @@ namespace TODOLIST.Controllers
             DueDate = task.DueDate,
             IsActive = task.IsActive
         }).ToList();
+        ViewData["TotalTasks"] = tasks.Count;
         return View(taskViewModels);
         
         }

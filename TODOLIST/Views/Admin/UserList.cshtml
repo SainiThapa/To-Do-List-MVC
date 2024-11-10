@@ -3,32 +3,59 @@
 <div class="container mt-5">
     <h2 class="text-center mb-4">User List</h2>
 
-    <table class="table table-hover table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">Full Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model)
-            {
+    <form asp-action="DeleteUsers" asp-controller="Admin" method="post">
+        <table class="table table-hover table-bordered">
+            <thead class="thead-dark">
                 <tr>
-                    <td>@user.FirstName @user.LastName</td>
-                    <td>@user.Email</td>
-                    <td>
-                        <a href="@Url.Action("UserTasks", "Admin", new { userId = user.Id })" class="btn btn-primary btn-sm">
-                            <i class="bi bi-list-check"></i> View Tasks
-                        </a>
-                    </td>
+                    <th scope="col"><input type="checkbox" onclick="checkAll(this)" /></th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td><input type="checkbox" name="userIds" value="@user.Id" /></td>
+                        <td>@user.FirstName @user.LastName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <a href="@Url.Action("UserTasks", "Admin", new { userId = user.Id })" class="btn btn-primary btn-sm">
+                                <i class="bi bi-list-check"></i> View Tasks
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash"></i> Delete Selected Users
+        </button>
+
+    <a href="@Url.Action("AddUser", "Admin")" class="btn btn-info btn-sm">
+        <i class="bi bi-person-plus-fill"></i> Add New User
+    </a>
+    </form>
+    <br>
+    <a href="@Url.Action("DownloadUserTasksSummary", "Admin")" class="btn btn-success btn-sm">
+        <i class="bi bi-download"></i> Download User Report
+    </a>
+    <a href="@Url.Action("DownloadAllTasksWithOwners", "Admin")" class="btn btn-warning btn-sm">
+        <i class="bi bi-download"></i> Download Tasks Report
+    </a>
 </div>
 
-<!-- Add some CSS for further styling -->
+<script>
+    function checkAll(box) {
+        let checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = box.checked;
+        });
+    }
+</script>
+
 <style>
     .container {
         max-width: 800px;

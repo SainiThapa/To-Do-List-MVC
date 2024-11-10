@@ -30,8 +30,15 @@
                                 }
                                  @if (User.IsInRole("Admin"))
                                 {
+                                    <li class="nav-item">
+                                  <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">My Tasks</a>
+                                  </li>
                                      <li class="nav-item">
-                                  <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="UserList">User List</a>
+                                  <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="UserList">List of Users</a>
+                                  </li>
+
+                                    <li class="nav-item">
+                                  <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="ResetPassword">Reset Password</a>
                                   </li>
                                 }
 
@@ -43,7 +50,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                                     @if (User.IsInRole("User"))
                                     {
-                                    <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ResetPassword">Reset Password</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ResetPassword">Change Password</a></li>
                                     }
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a></li>
                                 </ul>
