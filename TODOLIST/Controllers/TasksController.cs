@@ -44,6 +44,10 @@ namespace TODOLIST.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(TaskViewModel model)
         {
+            if (model.DueDate < DateTime.Today)
+            {
+                ModelState.AddModelError("DueDate", "The due date cannot be in the future.");
+            }
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);

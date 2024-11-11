@@ -16,6 +16,7 @@ namespace TODOLIST.ViewModels
 
         [Display(Name = "Due Date")]
         [DataType(DataType.Date)]
+        [PastOrToday(ErrorMessage = "The due date cannot be in the past.")]
         public DateTime DueDate { get; set; }
 
         [Display(Name = "Activity Status")]
@@ -23,4 +24,16 @@ namespace TODOLIST.ViewModels
         public string Status => IsActive ? "Active" : "Completed";  
 
     }
+    public class PastOrTodayAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            if (value is DateTime date)
+            {
+                return date >= DateTime.Today;
+            }
+            return true;
+        }
+}
+
 }

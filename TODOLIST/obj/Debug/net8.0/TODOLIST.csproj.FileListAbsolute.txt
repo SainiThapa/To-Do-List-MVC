@@ -28,3 +28,16 @@
 /home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/obj/Debug/net8.0/TODOLIST.pdb
 /home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/obj/Debug/net8.0/TODOLIST.genruntimeconfig.cache
 /home/prisanmagar/Desktop/dotnet/XAM/TODOLIST/obj/Debug/net8.0/ref/TODOLIST.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\TODOLIST.exe
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\TODOLIST.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\CsvHelper.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\Microsoft.Data.Sqlite.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Sqlite.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\SQLitePCLRaw.batteries_v2.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\SQLitePCLRaw.core.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\SQLitePCLRaw.provider.e_sqlite3.dll
+C:\Users\Lenovo\Desktop\API_Backend\To-Do-List-MVC\TODOLIST\bin\Debug\net8.0\runtimes\win-x64\native\e_sqlite3.dll

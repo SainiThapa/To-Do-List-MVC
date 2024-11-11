@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj": {}
+    "C:\\Users\\Lenovo\\Desktop\\API_Backend\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj": {
+    "C:\\Users\\Lenovo\\Desktop\\API_Backend\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj",
+        "projectUniqueName": "C:\\Users\\Lenovo\\Desktop\\API_Backend\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj",
         "projectName": "TODOLIST",
-        "projectPath": "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj",
+        "projectPath": "C:\\Users\\Lenovo\\Desktop\\API_Backend\\To-Do-List-MVC\\TODOLIST\\TODOLIST.csproj",
         "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo\\Desktop\\To-Do-List-MVC\\TODOLIST\\obj\\",
+        "outputPath": "C:\\Users\\Lenovo\\Desktop\\API_Backend\\To-Do-List-MVC\\TODOLIST\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
