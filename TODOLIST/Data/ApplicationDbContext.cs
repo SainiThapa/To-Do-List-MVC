@@ -12,7 +12,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     { 
     }
     public DbSet<TaskItem> TaskItems { get; set; }
-    public DbSet<TODOLIST.ViewModels.TaskViewModel> TaskViewModel { get; set; } = default!;
+    public DbSet<TaskViewModel> TaskViewModel { get; set; } = default!;
+    public DbSet<ApplicationUser> AspNetUsers{ get; set; }
+
 }
 
 }

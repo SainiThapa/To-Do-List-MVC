@@ -5,6 +5,9 @@ using TODOLIST.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using TODOLIST.Models;
+using NuGet.Protocol;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace TODOLIST.Controllers
 {
@@ -13,13 +16,16 @@ namespace TODOLIST.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
         private readonly AccountService _accountService;
 
-        public AccountController(AccountService accountService, ILogger<AccountController> logger, UserManager<ApplicationUser> userManager)
+        public AccountController(AccountService accountService, ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             _accountService = accountService;
             _logger = logger;
             _userManager=userManager;
+            _signInManager = signInManager;
 
         }
 
@@ -64,9 +70,21 @@ namespace TODOLIST.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _accountService.LoginUserAsync(model);
-                if (result.Succeeded)
+                // var result = await _accountService.LoginUserAsync(model);
+                // if (result.Succeeded)
+                // {
+                //     return RedirectToAction("Index", "Home");
+                // }
+
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
                 {
+                    var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        claimsPrincipal);
+
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -75,6 +93,7 @@ namespace TODOLIST.Controllers
         }
 
         // [HttpPost]
+        [Authorize(Policy ="RequireCookie")]
         public async Task<IActionResult> Logout()
         {
             await _accountService.LogoutUserAsync();
@@ -82,7 +101,7 @@ namespace TODOLIST.Controllers
         }
 
         [HttpGet]
-        [Authorize] // Make sure user is logged in
+        [Authorize(Policy ="RequireCookie")] // Make sure user is logged in
         public async Task<IActionResult> ResetPassword()
         {
 
@@ -100,6 +119,7 @@ namespace TODOLIST.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy ="RequireCookie")]
         public async Task<IActionResult> ResetPassword(PasswordResetViewModel model)
         {
             if (!ModelState.IsValid)
@@ -123,6 +143,7 @@ namespace TODOLIST.Controllers
             return View(model);
         }
 
+        [Authorize(Policy ="RequireCookie")]
         public IActionResult ResetPasswordConfirmation()
         {
             return View();

@@ -7,7 +7,7 @@ using TODOLIST.ViewModels;
 
 namespace TODOLIST.Controllers
 {
-    [Authorize] // Ensure that the user is authenticated before accessing the actions
+    [Authorize(Policy ="RequireCookie")]
     public class TasksController : Controller
     {
         private readonly TaskService _taskService;
@@ -34,6 +34,7 @@ namespace TODOLIST.Controllers
             DueDate = task.DueDate,
             IsActive = task.IsActive
         }).ToList();
+
         ViewData["TotalTasks"] = tasks.Count;
         return View(taskViewModels);
         

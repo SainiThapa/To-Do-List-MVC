@@ -9,7 +9,7 @@ using System.IO;
 
 namespace TODOLIST.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", Policy ="RequireCookie")]
     public class AdminController : Controller
     {
         private readonly AdminService _adminService;

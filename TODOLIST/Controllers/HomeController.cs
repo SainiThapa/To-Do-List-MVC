@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TODOLIST.Models;
 
 namespace TODOLIST.Controllers;
 
+[Authorize(Policy ="RequireCookie")]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -19,10 +21,11 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-         var user = await _userManager.GetUserAsync(User);
-
+         var user = await _userManager.GetUserAsync(HttpContext.User);
             if (user != null)
             {
+                 Console.WriteLine("%%%%%%%%%%%NOT NULL"+user.UserName.ToString());
+
                 if (await _userManager.IsInRoleAsync(user, "Admin"))
                 {
                     return RedirectToAction("Index", "Admin");
@@ -32,8 +35,6 @@ public class HomeController : Controller
                     return RedirectToAction("Index", "Tasks");
                 }
             }
-
-            // If the user is not logged in or doesn't have a role, render the default view.
             return View();
     }
 

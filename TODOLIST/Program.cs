@@ -1,120 +1,159 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using TODOLIST.Data; // Ensure this matches your namespace for ApplicationDbContext
-using TODOLIST.Models; // Ensure this matches your namespace for IdentityUser
-using TODOLIST.Services; // Ensure this matches your namespace for TaskService
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using TODOLIST.Data; 
+    using TODOLIST.Models;
+    using TODOLIST.Services;
+    using Microsoft.IdentityModel.Tokens;
+    using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Entity Framework with SQLite
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    // we are Configuring Entity Framework with SQLite
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure Identity services with role management
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+    // Role management services are being configured here
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
 
-// Register the TaskService as a scoped service
-builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<TaskService>();
-builder.Services.AddScoped<AdminService>();
+    // Registering all the Services as scoped services
+    builder.Services.AddScoped<AccountService>();
+    builder.Services.AddScoped<TaskService>();
+    builder.Services.AddScoped<AdminService>();
 
 
-// Add MVC services
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error"); // Custom error handling
-    app.UseHsts(); // Add HTTP Strict Transport Security (HSTS)
-}
-
-app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
-app.UseStaticFiles(); // Enable serving static files
-
-app.UseRouting(); // Add routing middleware
-
-app.UseAuthentication(); // Ensure that authentication middleware is used
-app.UseAuthorization(); // Ensure that authorization middleware is used
-
-// Configure default route for controllers
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await SeedRolesAsync(services);
-}
-
-app.Run();
-
-static async Task SeedRolesAsync(IServiceProvider serviceProvider)
-{
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-
-    // Define roles
-    string[] roleNames = { "Admin", "User" };
-    IdentityResult roleResult;
-
-    // Ensure each role exists, creating if necessary
-    foreach (var roleName in roleNames)
+    // Adding MVC services
+    builder.Services.AddControllersWithViews();
+    builder.Services.AddRazorPages();
+    builder.Services.AddControllers().AddJsonOptions(options =>
     {
-        var roleExist = await roleManager.RoleExistsAsync(roleName);
-        if (!roleExist)
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
+
+
+    builder.Services.AddAuthentication(options =>
         {
-            roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
-        }
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        }).
+        AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+        {
+            options.LoginPath = "/Account/Login";
+        })
+        .AddJwtBearer(options =>
+        {
+            var key = builder.Configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(key))
+                {
+                    throw new InvalidOperationException("JWT Key is missing in configuration.");
+                }
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+            };
+        });
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireJwt", policy =>
+                policy.RequireAuthenticatedUser().AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme));
+
+            options.AddPolicy("RequireCookie", policy =>
+                policy.RequireAuthenticatedUser().AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme));
+        });
+    
+
+
+    var app = builder.Build();
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Home/Error");
+        app.UseHsts(); 
+    }
+    app.UseHttpsRedirection();
+    app.UseStaticFiles(); 
+
+    app.UseRouting(); 
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        await SeedRolesAsync(services);
     }
 
-    
-        // Define hardcoded admin credentials
-        string adminUsername = "Admin";
-        string adminEmail = "admin@abc.com";
-        string adminPassword = "Admin@123"; // Use a strong password in production
+    app.Run();
 
-        // Check if an admin user exists
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser == null)
+    static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+    {
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+        string[] roleNames = { "Admin", "User" };
+        IdentityResult roleResult;
+
+        foreach (var roleName in roleNames)
         {
-            // Create the admin user
-            adminUser = new ApplicationUser
+            var roleExist = await roleManager.RoleExistsAsync(roleName);
+            if (!roleExist)
             {
-                UserName = adminUsername,
-                Email = adminEmail,
-                FirstName = "Admin",
-                LastName = "User",
-                EmailConfirmed = true
-            };
+                roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
 
-            var createAdminResult = await userManager.CreateAsync(adminUser, adminPassword);
-            
-            // Assign Admin role if creation succeeded
-            if (createAdminResult.Succeeded)
+        
+            string adminUsername = "Admin";
+            string adminEmail = "admin@abc.com";
+            string adminPassword = "Admin@123";
+
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
             {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-                Console.WriteLine("Admin user created and assigned to Admin role.");
+                adminUser = new ApplicationUser
+                {
+                    UserName = adminUsername,
+                    Email = adminEmail,
+                    FirstName = "Admin",
+                    LastName = "User",
+                    EmailConfirmed = true
+                };
+
+                var createAdminResult = await userManager.CreateAsync(adminUser, adminPassword);
+                
+                if (createAdminResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    Console.WriteLine("Admin user created and assigned to Admin role.");
+                }
+                else
+                {
+                    Console.WriteLine("Error creating admin user:");
+                    foreach (var error in createAdminResult.Errors)
+                    {
+                        Console.WriteLine($"- {error.Description}");
+                    }
+                }
             }
             else
             {
-                Console.WriteLine("Error creating admin user:");
-                foreach (var error in createAdminResult.Errors)
-                {
-                    Console.WriteLine($"- {error.Description}");
-                }
+                Console.WriteLine("Admin user already exists.");
             }
-        }
-        else
-        {
-            Console.WriteLine("Admin user already exists.");
-        }
-}
+    }
 
