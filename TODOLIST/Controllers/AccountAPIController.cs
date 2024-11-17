@@ -38,12 +38,6 @@ namespace TODOLIST.Controllers
             _roleManager = roleManager;
         }
 
-        // [HttpGet("AspNetUsers")]
-        // //Get : api/AccountApi/AspNetUsers
-        // public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAspNetUser()
-        // {
-        //     return await _context.AspNetUsers.ToListAsync();
-        // }
 
 
         // POST: api/AccountApi/register
@@ -104,6 +98,31 @@ namespace TODOLIST.Controllers
             return Unauthorized();
         }
 
+        // api/AccountApi/login
+        [HttpPost("admin/login")]
+        public async Task<IActionResult> AdminLogin([FromBody] UserLoginDto userLogin)
+        {
+            var validation = await IsValidUser(userLogin);
+            if (validation)
+            {
+                var user = await _userManager.FindByEmailAsync(userLogin.Email);
+                if (user == null || !(await _userManager.IsInRoleAsync(user, "Admin")))
+                {
+                    return Unauthorized("Access denied. Admins only.");
+                }
+
+                // Generate the token
+                var token = GenerateJwtToken(userLogin.Email);
+
+                return Ok(new
+                {
+                    Token = token });
+            }
+
+            return Unauthorized("Invalid login credentials.");
+        }
+
+
         private async Task<bool> IsValidUser(UserLoginDto userLogin)
         {
                 Console.WriteLine($"-----------{userLogin}-----------");
@@ -136,7 +155,15 @@ namespace TODOLIST.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        [Authorize]
+        [HttpGet("AspNetUsers")]
+        //Get : api/AccountApi/AspNetUsers
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAspNetUser()
+        {
+            return await _context.AspNetUsers.ToListAsync();
+        }
 
+        [Authorize]
         // GET: api/AccountApi/AspNetUsers/{id}
         [HttpGet("AspNetUsers/{userId}")]
         public async Task<IActionResult> GetAspNetUser(string userId)
@@ -150,13 +177,59 @@ namespace TODOLIST.Controllers
         }
 
         [Authorize]
-        // PUT: api/AccountApi/user/{email}/updatePassword
+        [HttpGet("AspNetUsers/{userId}/details")]
+        public async Task<IActionResult> GetUserDetails(string userId)
+        {
+            var user = await _userManager.Users
+                .Include(u => u.TaskItems) // Assuming TaskItems is the navigation property for tasks
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return NotFound();
+
+            var userDetails = new
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Tasks = user.TaskItems.Select(t => new
+                {
+                    t.Title,
+                    t.Description,
+                    t.DueDate,
+                    IsActive = t.IsActive ? "Active" : "Completed"
+                }).ToList()
+            };
+
+            return Ok(userDetails);
+        }
+
+        //POST: api/AccountApi/AspNetUsers/{userId}/deleteTasks 
+        [Authorize]
+        [HttpPost("AspNetUsers/{userId}/deleteTasks")]
+        public async Task<IActionResult> DeleteTasks(string userId, [FromBody] List<int> taskIds)
+        {
+            var tasksToDelete = _context.TaskItems.Where(t => taskIds.Contains(t.Id) && t.UserId == userId).ToList();
+            if (tasksToDelete.Count == 0)
+                return NotFound("No tasks found to delete.");
+
+            _context.TaskItems.RemoveRange(tasksToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = $"{tasksToDelete.Count} tasks deleted successfully." });
+        }
+
+
+        [Authorize]
+        // PUT: api/AccountApi/user/{userId}/updatePassword
         [HttpPut("AspNetUser/{userId}/updatePassword")]
         public async Task<IActionResult> UpdateUserPassword(string userId, [FromBody] UpdateUserViewModel model)
         {
             if (!ModelState.IsValid)
+            {
+                Console.WriteLine("%%%%%%%%%%%%%^&*((()))");
                 return BadRequest(ModelState);
-
+            }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return NotFound();

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using TODOLIST.ViewModels;
 using TODOLIST.Services;
+using TODOLIST.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using TODOLIST.Models;
@@ -15,17 +17,19 @@ namespace TODOLIST.Controllers
     {
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly ApplicationDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
         private readonly AccountService _accountService;
 
-        public AccountController(AccountService accountService, ILogger<AccountController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(AccountService accountService, ILogger<AccountController> logger, 
+        UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext context)
         {
             _accountService = accountService;
             _logger = logger;
             _userManager=userManager;
             _signInManager = signInManager;
+            _context = context;
 
         }
 
@@ -147,6 +151,81 @@ namespace TODOLIST.Controllers
         public IActionResult ResetPasswordConfirmation()
         {
             return View();
+        }
+
+        [Authorize(Policy ="RequireCookie")]
+        public async Task<IActionResult> ViewProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User not found.");
+
+            var taskCount = await _context.TaskItems.CountAsync(t => t.UserId == user.Id);
+
+            var model = new ProfileViewModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                TaskCount = taskCount
+            };
+
+            return View(model);
+        }
+
+         // GET: Profile/Edit
+        [Authorize(Policy ="RequireCookie")]
+
+        public async Task<IActionResult> EditProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User not found.");
+
+            var model = new ProfileViewModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email
+            };
+
+            return View(model);
+        }
+
+        // POST: Profile/Edit
+        [HttpPost]
+        [Authorize(Policy ="RequireCookie")]
+
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(ProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                foreach (var modelError in ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        Console.WriteLine(modelError.ErrorMessage);
+                    }
+                return View(model);
+            }
+
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null)
+                return NotFound("User not found.");
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Email = model.Email;
+
+        var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+                return RedirectToAction("ViewProfile","Account");
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error.Description);
+
+            return View(model);
         }
     }
 }

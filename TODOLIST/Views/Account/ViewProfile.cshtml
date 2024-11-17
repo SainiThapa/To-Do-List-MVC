@@ -1,0 +1,55 @@
+@model TODOLIST.ViewModels.ProfileViewModel
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">User Profile</h3>
+            <a asp-action="EditProfile" class="btn btn-light text-primary">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <img src="https://via.placeholder.com/150" class="rounded-circle img-thumbnail mb-3" alt="Profile Picture">
+                </div>
+                <div class="col-md-9">
+                    <h4 class="font-weight-bold">@Model.FirstName @Model.LastName</h4>
+                    <p class="text-muted">@Model.Email</p>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>First Name: </strong> @Model.FirstName
+                        </li>
+                        <li class="mb-2">
+                            <strong>Last Name: </strong> @Model.LastName
+                        </li>
+                        <li class="mb-2">
+                            <strong>Email: </strong> @Model.Email
+                        </li>
+                        <li class="mb-2">
+                            <strong>Total Tasks: </strong> @Model.TaskCount
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+    }
+    .card {
+        border-radius: 12px;
+    }
+    .card-header {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    .img-thumbnail {
+        width: 150px;
+        height: 150px;
+    }
+</style>
