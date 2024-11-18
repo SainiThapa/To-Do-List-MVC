@@ -193,7 +193,8 @@ namespace TODOLIST.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Tasks = user.TaskItems.Select(t => new
-                {
+                {   
+                    t.Id,
                     t.Title,
                     t.Description,
                     t.DueDate,
@@ -209,10 +210,11 @@ namespace TODOLIST.Controllers
         [HttpPost("AspNetUsers/{userId}/deleteTasks")]
         public async Task<IActionResult> DeleteTasks(string userId, [FromBody] List<int> taskIds)
         {
+                    Console.WriteLine($"User ID: {userId}");
+                    Console.WriteLine($"Task IDs: {string.Join(", ", taskIds)}");
             var tasksToDelete = _context.TaskItems.Where(t => taskIds.Contains(t.Id) && t.UserId == userId).ToList();
             if (tasksToDelete.Count == 0)
                 return NotFound("No tasks found to delete.");
-
             _context.TaskItems.RemoveRange(tasksToDelete);
             await _context.SaveChangesAsync();
 
@@ -222,15 +224,16 @@ namespace TODOLIST.Controllers
 
         [Authorize]
         // PUT: api/AccountApi/user/{userId}/updatePassword
-        [HttpPut("AspNetUser/{userId}/updatePassword")]
-        public async Task<IActionResult> UpdateUserPassword(string userId, [FromBody] UpdateUserViewModel model)
+        [HttpPut("AspNetUser/{email}/updatePassword")]
+        public async Task<IActionResult> UpdateUserPassword(string email, [FromBody] UpdateUserViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 Console.WriteLine("%%%%%%%%%%%%%^&*((()))");
                 return BadRequest(ModelState);
             }
-            var user = await _userManager.FindByIdAsync(userId);
+            Console.WriteLine(model.Password.ToString());
+            var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
                 return NotFound();
             string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -288,6 +291,45 @@ namespace TODOLIST.Controllers
             };
 
             return Ok(profile);
+        }
+
+        //AccountApi/Reports/UserSummary 
+        [Authorize]
+        [HttpGet("Reports/UserSummary")]
+         public IActionResult GetUserSummary()
+        {
+            var users = _context.Users
+                .Select(u => new { u.Email, u.FirstName, u.LastName, TaskCount = u.TaskItems.Count })
+                .ToList();
+
+            var csv = GenerateCsv(users);
+            return File(Encoding.UTF8.GetBytes(csv), "text/csv", "UserSummary.csv");
+        }
+
+        [Authorize]
+        [HttpGet("Reports/TaskReport")]
+        public IActionResult GetTaskReport()
+        {
+            var tasks = _context.TaskItems
+                .Select(t => new { t.Title, t.Description, t.User.Email })
+                .ToList();
+
+            var csv = GenerateCsv(tasks);
+            return File(Encoding.UTF8.GetBytes(csv), "text/csv", "TaskReport.csv");
+        }
+
+        private string GenerateCsv<T>(IEnumerable<T> data)
+        {
+            var properties = typeof(T).GetProperties();
+            var csv = new StringBuilder();
+
+            csv.AppendLine(string.Join(",", properties.Select(p => p.Name)));
+            foreach (var item in data)
+            {
+                csv.AppendLine(string.Join(",", properties.Select(p => p.GetValue(item)?.ToString())));
+            }
+
+            return csv.ToString();
         }
     }
 

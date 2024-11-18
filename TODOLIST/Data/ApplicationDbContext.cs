@@ -5,16 +5,13 @@ using TODOLIST.ViewModels;
 
 namespace TODOLIST.Data
 {
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
-{
-    
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) 
-    { 
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) 
+        { 
+        }
+        public DbSet<TaskItem> TaskItems { get; set; }
+        public DbSet<TaskViewModel> TaskViewModel { get; set; } = default!;
+        public DbSet<ApplicationUser> AspNetUsers{ get; set; }
     }
-    public DbSet<TaskItem> TaskItems { get; set; }
-    public DbSet<TaskViewModel> TaskViewModel { get; set; } = default!;
-    public DbSet<ApplicationUser> AspNetUsers{ get; set; }
-
-}
-
 }
