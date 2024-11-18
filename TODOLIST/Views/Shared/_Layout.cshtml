@@ -48,6 +48,7 @@
                                     @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ViewProfile">@User.Identity.Name</a></li>
                                     @if (User.IsInRole("User"))
                                     {
                                     <li><a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ResetPassword">Change Password</a></li>
