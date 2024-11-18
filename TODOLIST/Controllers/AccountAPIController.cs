@@ -311,7 +311,7 @@ namespace TODOLIST.Controllers
         public IActionResult GetTaskReport()
         {
             var tasks = _context.TaskItems
-                .Select(t => new { t.Title, t.Description, t.User.Email })
+                .Select(t => new {t.Id, t.Title, t.Description,t.DueDate,t.IsActive, t.User.Email })
                 .ToList();
 
             var csv = GenerateCsv(tasks);
